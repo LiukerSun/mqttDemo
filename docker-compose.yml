@@ -1,0 +1,39 @@
+version: '3'
+services:
+  nanomq:
+    image: emqx/nanomq:0.20
+    container_name: nanomq
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+      - "8883:8883"
+    networks:
+      - db_network
+
+  influxdb:
+    image: influxdb:2.5.1
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb2:/var/lib/influxdb2
+    networks:
+      - db_network
+
+  telegraf:
+    image: telegraf:1.29.1
+    container_name: telegraf
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - nanomq
+      - influxdb
+    networks:
+      - db_network
+
+networks:
+  db_network:
+
+
+volumes:
+  influxdb_volume:
